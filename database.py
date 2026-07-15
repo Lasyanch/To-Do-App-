@@ -5,7 +5,10 @@ DB_NAME = "data/tasks.db"
 
 
 def get_connection():
-    return sqlite3.connect(DB_NAME, check_same_thread=False)
+    return sqlite3.connect(
+        DB_NAME,
+        check_same_thread=False
+    )
 
 
 def create_table():
@@ -28,16 +31,33 @@ def create_table():
     conn.close()
 
 
-def add_task(title, description, priority, category, due_date):
+def add_task(
+    title,
+    description,
+    priority,
+    category,
+    due_date
+):
     conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute("""
     INSERT INTO tasks
-    (title, description, priority, category, due_date)
+    (
+        title,
+        description,
+        priority,
+        category,
+        due_date
+    )
     VALUES (?, ?, ?, ?, ?)
-    """,
-    (title, description, priority, category, due_date))
+    """, (
+        title,
+        description,
+        priority,
+        category,
+        due_date
+    ))
 
     conn.commit()
     conn.close()
@@ -56,6 +76,55 @@ def get_tasks():
     return rows
 
 
+def get_task_by_id(task_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    SELECT * FROM tasks
+    WHERE id = ?
+    """, (task_id,))
+
+    task = cursor.fetchone()
+
+    conn.close()
+
+    return task
+
+
+def update_task(
+    task_id,
+    title,
+    description,
+    priority,
+    category,
+    due_date
+):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    UPDATE tasks
+    SET
+        title = ?,
+        description = ?,
+        priority = ?,
+        category = ?,
+        due_date = ?
+    WHERE id = ?
+    """, (
+        title,
+        description,
+        priority,
+        category,
+        due_date,
+        task_id
+    ))
+
+    conn.commit()
+    conn.close()
+
+
 def update_status(task_id, status):
     conn = get_connection()
     cursor = conn.cursor()
@@ -64,7 +133,10 @@ def update_status(task_id, status):
     UPDATE tasks
     SET status = ?
     WHERE id = ?
-    """, (status, task_id))
+    """, (
+        status,
+        task_id
+    ))
 
     conn.commit()
     conn.close()
@@ -74,10 +146,10 @@ def delete_task(task_id):
     conn = get_connection()
     cursor = conn.cursor()
 
-    cursor.execute(
-        "DELETE FROM tasks WHERE id=?",
-        (task_id,)
-    )
+    cursor.execute("""
+    DELETE FROM tasks
+    WHERE id = ?
+    """, (task_id,))
 
     conn.commit()
     conn.close()
